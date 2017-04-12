@@ -10,12 +10,9 @@
 #define Tracker_h
 
 #import <React/RCTBridgeModule.h>
-#import <CoreMotion/CoreMotion.h>
 #import <UIKit/UIKit.h>
 
 @interface Tracker : NSObject<RCTBridgeModule, UIAccelerometerDelegate>
-
-@property (nonatomic, strong) CMPedometer *pedometer;
 
 @end
 

@@ -17,6 +17,7 @@ import {
 
 export default class Hermes extends Component {
   emitter = DeviceEventEmitter
+  tracker = NativeModules.Tracker
 
   constructor(props) {
     super(props)
@@ -43,15 +44,19 @@ export default class Hermes extends Component {
     );
   }
 
-  componentDidMount() {
-    var tracker = NativeModules.Tracker;
-    this.emitter.addListener(
-      'onAccelerate',
-      (result) => this.setState({
-        trackerStatus: result.vector
+  getStepCountToday() {
+    this.getStepCountToday((steps) => {
+      this.setState({
+        trackerStatus: 'steps today: ' + steps
       })
-    );
-    tracker.accelerometer();
+    })
+  }
+
+  componentDidMount() {
+    this.emitter.addListener('onSensorChanged', () => {
+      this.getStepCountToday()
+    })
+    this.tracker.start()
   }
 }
 
