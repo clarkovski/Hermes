@@ -107,6 +107,10 @@ RCT_EXPORT_METHOD(start) {
   [[UIAccelerometer sharedAccelerometer] setDelegate:self];
 }
 
+RCT_EXPORT_METHOD(stop) {
+  [[UIAccelerometer sharedAccelerometer] setDelegate:nil];
+}
+
 //==============================================================================
 // How are the steps stored
 //------------------------------------------------------------------------------
@@ -133,13 +137,13 @@ RCT_EXPORT_METHOD(getStepCountToday:(RCTResponseSenderBlock)response) {
   if([preferences objectForKey:@"pedometer"] != nil) {
     NSDictionary *pedometer;
     pedometer = [preferences dictionaryForKey:@"pedometer"];
-    
+
     long timestamp = [[NSDate date] timeIntervalSince1970];
     NSDate* date = [NSDate dateWithTimeIntervalSince1970: timestamp];
     NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"yyyyMMdd"];
     NSString* filter = [formatter stringFromDate:date];
-    
+
     for(NSString* key in pedometer) {
       if([key hasPrefix:filter]) {
         steps += [pedometer[key] intValue];
@@ -158,27 +162,26 @@ RCT_EXPORT_METHOD(getStepCountWeek:(RCTResponseSenderBlock)response) {
   if([preferences objectForKey:@"pedometer"] != nil) {
     NSDictionary *pedometer;
     pedometer = [preferences dictionaryForKey:@"pedometer"];
-    
+
     NSDate* today = [NSDate date];
-    NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
-    
-    // day of week: 0 is sunday
-    [formatter setDateFormat:@"c"];
-    int c = [[formatter stringFromDate:today] intValue];
-    
-    [formatter setDateFormat:@"yyyyMMdd"];
+    NSDateFormatter* weekFmt = [[NSDateFormatter alloc] init];
+    [weekFmt setDateFormat:@"c"];
+    NSDateFormatter* dateFmt = [[NSDateFormatter alloc] init];
+    [dateFmt setDateFormat:@"yyyyMMdd"];
+
+    int c = [[weekFmt stringFromDate:today] intValue];
     long timestamp = [today timeIntervalSince1970];
     for(int i = 0; i < 7; i++) {
-      long day = timestamp + (i-c) * 86400;
+      long day = timestamp + (i-c+1) * 86400;
       NSDate* date = [NSDate dateWithTimeIntervalSince1970: day];
-      NSString* filter = [formatter stringFromDate:date];
+      NSString* filter = [dateFmt stringFromDate:date];
       int steps = 0;
       for(NSString* key in pedometer) {
         if([key hasPrefix:filter]) {
           steps += [pedometer[key] intValue];
         }
       }
-      week[6-i] = [NSNumber numberWithInt:steps];
+      week[i] = [NSNumber numberWithInt:steps];
     }
   }
   response(week);

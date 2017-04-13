@@ -45,7 +45,7 @@ export default class Hermes extends Component {
   }
 
   getStepCountToday() {
-    this.getStepCountToday((steps) => {
+    this.tracker.getStepCountToday((steps) => {
       this.setState({
         trackerStatus: 'steps today: ' + steps
       })
